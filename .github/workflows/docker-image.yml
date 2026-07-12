@@ -58,14 +58,28 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Set package visibility to public
-        continue-on-error: true
         env:
           TOKEN: ${{ secrets.GHCR_PAT || github.token }}
         run: |
-          curl -sSf \
-            -X PATCH \
-            -H "Authorization: Bearer ${TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "Content-Type: application/json" \
-            -d '{"visibility":"public"}' \
-            "https://api.github.com/user/packages/container/${{ github.repository_owner }}%2F${{ github.event.repository.name }}" || echo "Warning: could not set package visibility to public"
+          python3 << 'PYEOF'
+          import urllib.request, json, os
+
+          token = os.environ.get('TOKEN', '')
+          pkg_name = "${{ github.repository_owner }}%2F${{ github.event.repository.name }}"
+          url = f"https://api.github.com/user/packages/container/{pkg_name}"
+
+          data = json.dumps({"visibility": "public"}).encode()
+          req = urllib.request.Request(url, data=data, method="PATCH")
+          req.add_header("Authorization", f"Bearer {token}")
+          req.add_header("Accept", "application/vnd.github+json")
+          req.add_header("Content-Type", "application/json")
+
+          try:
+              resp = urllib.request.urlopen(req)
+              body = json.loads(resp.read())
+              print(f"Success (HTTP {resp.status}): visibility is now '{body.get('visibility')}'")
+          except urllib.error.HTTPError as e:
+              err_body = e.read().decode()
+              print(f"FAILED (HTTP {e.code}): {err_body}")
+              raise SystemExit(1)
+          PYEOF
