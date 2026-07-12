@@ -1,0 +1,7 @@
+# Bind-mount directories - contain user data, sessions, and secrets
+config/
+data/
+workspace/
+
+# Environment variables with API keys and passwords
+.env
