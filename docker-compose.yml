@@ -1,6 +1,7 @@
 services:
   opencode:
-    build: .
+    image: ghcr.io/tthayer93/dockerized-opencode:latest
+    # build: .                                        # uncomment this line and comment out `image:` above to build locally instead of pulling the pre-built image
     container_name: opencode
     restart: unless-stopped
     stop_grace_period: 10s
