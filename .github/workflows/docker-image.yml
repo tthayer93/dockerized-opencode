@@ -58,10 +58,14 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Set package visibility to public
+        continue-on-error: true
+        env:
+          TOKEN: ${{ secrets.GHCR_PAT || github.token }}
         run: |
           curl -sSf \
             -X PATCH \
-            -H "Authorization: Bearer ${{ secrets.GHCR_PAT || github.token }}" \
+            -H "Authorization: Bearer ${TOKEN}" \
             -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
             -d '{"visibility":"public"}' \
-            "https://api.github.com/user/packages/container/${{ github.event.repository.name }}"
+            "https://api.github.com/user/packages/container/${{ github.repository_owner }}%2F${{ github.event.repository.name }}" || echo "Warning: could not set package visibility to public"
