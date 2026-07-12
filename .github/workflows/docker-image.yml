@@ -65,7 +65,7 @@ jobs:
           import urllib.request, json, os
 
           token = os.environ.get('TOKEN', '')
-          pkg_name = "${{ github.repository_owner }}%2F${{ github.event.repository.name }}"
+          pkg_name = "${{ github.event.repository.name }}"
           url = f"https://api.github.com/user/packages/container/{pkg_name}"
 
           data = json.dumps({"visibility": "public"}).encode()
