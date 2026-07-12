@@ -22,11 +22,28 @@ cp .env.example .env
 # 2. Set correct ownership on bind-mount directories before first run
 sudo chown -R $(id -u):$(id -g) config data workspace
 
-# 3. Build and start
-docker compose up -d --build
+# 3. Pull the pre-built image and start
+docker compose up -d
 ```
 
 The web UI is available at `http://localhost:4096`.
+
+## Build Locally
+
+If you prefer to build the image yourself instead of pulling the pre-built one, swap the `image:` directive for `build:` in `docker-compose.yml`:
+
+```yaml
+services:
+  opencode:
+    # image: ghcr.io/tthayer93/dockerized-opencode:latest
+    build: .
+```
+
+Then start with:
+
+```bash
+docker compose up -d --build
+```
 
 ## Directory Structure
 
