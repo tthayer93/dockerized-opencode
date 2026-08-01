@@ -23,7 +23,10 @@ chmod 600 "/workspace/.ssh/id_*" 2>/dev/null || true
 [ ! -e "/home/appuser/.ssh" ] && ln -s /workspace/.ssh /home/appuser/.ssh
 
 # Create and chown directories needed by opencode.
-mkdir -p "/home/appuser/.local/state"
+mkdir -p \
+    "/home/appuser/.config/opencode" \
+    "/home/appuser/.local/share" \
+    "/home/appuser/.local/state"
 chown "${PUID}:${PGID}" /home/appuser \
     "/home/appuser/.config" \
     "/home/appuser/.local" \
