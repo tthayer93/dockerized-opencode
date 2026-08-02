@@ -8,6 +8,21 @@ Docker Compose setup for running [Opencode](https://opencode.ai) with persistent
 - **Secure by Default**: Runs as a dedicated non-root user (`appuser`) with `no-new-privileges` security hardening.
 - **Zero Config Start**: Seeds a default `opencode.jsonc` on first run if none exists.
 
+## Included Dev Tools
+
+The container ships with a set of compilers, runtimes, and utilities so opencode can build and test code out of the box:
+
+| Category | Tools |
+|---|---|
+| **C/C++** | `gcc`, `g++`, `clang`, `musl-dev`, `cmake`, `make`, `gdb`, `pkgconf` |
+| **Go** | `go` |
+| **Rust** | `rust`, `cargo` |
+| **Python** | `python3`, `pip`, `python3-dev` (headers for C extensions) |
+| **Ruby** | `ruby` |
+| **Node.js** | `nodejs`, `npm` |
+| **Networking** | `curl`, `wget`, `openssh-client` |
+| **CLI Utilities** | `bash`, `git`, `jq`, `ripgrep`, `less`, `sed`, `awk` |
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
