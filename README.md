@@ -21,6 +21,7 @@ The container ships with a set of compilers, runtimes, and utilities so opencode
 | **Ruby** | `ruby` |
 | **Node.js** | `nodejs`, `npm` |
 | **Networking** | `curl`, `wget`, `openssh-client` |
+| **GitHub CLI** | `gh` |
 | **CLI Utilities** | `bash`, `git`, `jq`, `ripgrep`, `less`, `sed`, `awk` |
 
 ## Prerequisites
