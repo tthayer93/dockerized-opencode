@@ -14,6 +14,9 @@ services:
     volumes:
       # Your project source code (bind mount).
       - ./workspace:/workspace
+      # Host Docker socket — lets the container manage host containers.
+      # This is equivalent to giving the container root on the host.
+      - /var/run/docker.sock:/var/run/docker.sock
       # Config directory — entrypoint creates a default opencode.jsonc on first run.
       - ./config:/home/appuser/.config/opencode
       # Persistent data: sessions, auth tokens, logs, and project storage.

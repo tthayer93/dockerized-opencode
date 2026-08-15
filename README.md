@@ -22,6 +22,7 @@ The container ships with a set of compilers, runtimes, and utilities so opencode
 | **Node.js** | `nodejs`, `npm` |
 | **Networking** | `curl`, `wget`, `openssh-client` |
 | **GitHub CLI** | `gh` |
+| **Docker** | `docker` (CLI) |
 | **CLI Utilities** | `bash`, `git`, `jq`, `ripgrep`, `less`, `sed`, `awk` |
 
 ## Prerequisites
@@ -98,6 +99,12 @@ docker exec -it opencode su -s /bin/sh appuser -c "opencode attach http://localh
 ## Private Repositories
 
 To allow opencode to clone and push to private repositories, place your `.gitconfig` and `.ssh/` directory in `./workspace/`. The entrypoint symlinks these into the container user's home directory on first run. Empty placeholders are created automatically if missing, allowing you to copy your actual SSH keys and git config into `./workspace/` at any time without restarting the container.
+
+## Docker Socket Integration
+
+The `docker` CLI is included and the host's Docker socket is mounted at `/var/run/docker.sock`, so opencode can build images and manage containers on the host directly. The entrypoint grants the container user access to the socket on each start.
+
+> **Security note:** Control of the Docker socket is equivalent to **root access on the host**. Anyone with access to this container can escape to the host (e.g. by `docker run -v /:/host` mounting the host filesystem). If you don't need this, remove the socket volume from `docker-compose.yml`.
 
 ## Troubleshooting
 

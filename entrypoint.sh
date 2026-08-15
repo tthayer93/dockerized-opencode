@@ -33,6 +33,14 @@ chown "${PUID}:${PGID}" /home/appuser \
     "/home/appuser/.local/share" \
     "/home/appuser/.local/state"
 
+# If the host Docker socket is mounted, grant the container user access to it.
+if [ -S /var/run/docker.sock ]; then
+  sockGid="$(stat -c %g /var/run/docker.sock)"
+  groupadd -g "$sockGid" docker 2>/dev/null || true
+  usermod -aG docker appuser 2>/dev/null || true
+  chmod 666 /var/run/docker.sock 2>/dev/null || true
+fi
+
 [ ! -f "$CONFIG" ] && cp /opt/opencode/opencode.jsonc.default "$CONFIG"
 
 cd /workspace || exit 1

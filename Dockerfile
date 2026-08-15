@@ -5,6 +5,7 @@ RUN apk add --no-cache \
   gcc g++ musl-dev clang cmake make gdb pkgconf \
   go rust cargo \
   python3-dev ruby \
+  docker-cli \
   curl github-cli
 
 COPY opencode.jsonc.default /opt/opencode/opencode.jsonc.default
