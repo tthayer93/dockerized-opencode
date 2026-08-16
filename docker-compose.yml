@@ -12,8 +12,8 @@ services:
       - "4096:4096"
 
     volumes:
-      # Your project source code (bind mount).
-      - ./workspace:/workspace
+      # Your project source code (bind mount), host path configurable via HOST_WORKSPACE.
+      - ${HOST_WORKSPACE:-/mnt/workspace}:/workspace
       # Host Docker socket — lets the container manage host containers.
       # This is equivalent to giving the container root on the host.
       - /var/run/docker.sock:/var/run/docker.sock
@@ -23,6 +23,9 @@ services:
       - ./data:/home/appuser/.local/share/opencode
 
     environment:
+      # Host path containing your project source code.
+      HOST_WORKSPACE: "${HOST_WORKSPACE:-/mnt/workspace}"
+
       # Match the container user to your host UID/GID so bind mounts have correct ownership.
       PUID: "${PUID:-1000}"
       PGID: "${PGID:-1000}"

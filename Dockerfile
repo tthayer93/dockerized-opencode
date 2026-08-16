@@ -9,6 +9,7 @@ RUN apk add --no-cache \
   curl github-cli
 
 COPY opencode.jsonc.default /opt/opencode/opencode.jsonc.default
+COPY instructions/            /opt/opencode/instructions/
 COPY entrypoint.sh          /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
