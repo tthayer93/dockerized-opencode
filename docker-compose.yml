@@ -35,7 +35,8 @@ services:
       OPENCODE_SERVER_PASSWORD: "${OPENCODE_SERVER_PASSWORD:-password}"
 
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:4096/global/health || exit 1"]
+      # Auth is enabled, so the health endpoint requires basic auth credentials.
+      test: ["CMD-SHELL", "curl -sf -u \"$$OPENCODE_SERVER_USERNAME:$$OPENCODE_SERVER_PASSWORD\" http://localhost:4096/global/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
