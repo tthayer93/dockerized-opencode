@@ -77,26 +77,28 @@ docker compose up -d --build
 Copy `.env.example` to `.env` and set the required values:
 
 - **PUID / PGID** — match your host user so bind mounts have correct ownership.
-- **OPENCODE_SERVER_PASSWORD** — basic auth password for remote access (recommended).
+- **OPENCODE_PASSWORD** — basic auth password for remote access (recommended). In V2 the username is fixed to `opencode`; only the password is configurable.
 
 LLM provider API keys and other settings are configured directly inside `./config/opencode.jsonc`. The entrypoint seeds a minimal default config on first run if the file does not exist yet. You can edit it later to add providers, models, CORS, LSP servers, or any other advanced settings documented in the [Opencode configuration guide](https://opencode.ai/docs/config/).
 
 ### Port & Network Settings
 
-The web UI port and network binding are managed through `docker-compose.yml` to ensure they stay in sync with container networking and health checks. To change the exposed host port, modify the `ports` mapping in compose. Do not change `server.port` inside `./config/opencode.jsonc`, as this will cause the Docker health check to fail.
+The web UI port and network binding are controlled by the `opencode serve --hostname/--port` flags in `entrypoint.sh` (defaults: `0.0.0.0:4096`, overridable via `OPENCODE_SERVE_HOSTNAME`/`OPENCODE_SERVE_PORT` env vars), and stay in sync with the container's `ports` mapping and health check. In V2, `server.port`/`server.hostname` in `opencode.jsonc` are **accepted but ignored** — do not rely on them; they will not change what the container listens on.
 
 ## Command-Line Interface (TUI)
 
 You can interact with opencode directly in your terminal while the container is running. Because sessions are stored in the persistent `./data/` volume, any work you do in the TUI will be saved and visible in the web interface.
 
 ### Attaching to the Web Server
-To share live state with an already-running web server (recommended):
-```bash
-docker exec -it opencode su -s /bin/sh appuser -c "opencode attach http://localhost:4096 --dir /workspace/your-project"
-```
-> **Note:** Use the `--dir` flag to specify your project folder. Opencode organizes sessions by project slug, and omitting this flag defaults to `/workspace`, which may cause sessions to appear in a generic context instead of your specific sub-project in the web UI.
+To share live state with an already-running web server (recommended), `cd` into your project directory and pass the server URL via `--server`:
 
-*(If you have `OPENCODE_SERVER_PASSWORD` set, append `--password your-password` to the command.)*
+```bash
+docker exec -it opencode su -s /bin/sh appuser -c "cd /workspace/your-project && exec opencode --server http://localhost:4096"
+```
+
+> **Note:** `cd` into the specific project directory before running `opencode`. V2 organizes sessions by the current working directory (project slug), so running from `/workspace` instead of a sub-project will show sessions in a generic context in the web UI.
+
+*(The container already exports `OPENCODE_PASSWORD` in its environment, so no additional auth flag is needed for the client — the CLI reads `OPENCODE_PASSWORD` automatically.)*
 
 ## Private Repositories
 

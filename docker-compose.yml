@@ -30,13 +30,12 @@ services:
       PUID: "${PUID:-1000}"
       PGID: "${PGID:-1000}"
 
-      # Authentication (recommended for remote access)
-      OPENCODE_SERVER_USERNAME: "${OPENCODE_SERVER_USERNAME:-username}"
-      OPENCODE_SERVER_PASSWORD: "${OPENCODE_SERVER_PASSWORD:-password}"
+      # Authentication (recommended for remote access). Username is fixed to "opencode" in V2.
+      OPENCODE_PASSWORD: "${OPENCODE_PASSWORD:-password}"
 
     healthcheck:
       # Auth is enabled, so the health endpoint requires basic auth credentials.
-      test: ["CMD-SHELL", "curl -sf -u \"$$OPENCODE_SERVER_USERNAME:$$OPENCODE_SERVER_PASSWORD\" http://localhost:4096/global/health || exit 1"]
+      test: ["CMD-SHELL", "curl -sf -u \"opencode:$$OPENCODE_PASSWORD\" http://localhost:4096/api/info > /dev/null || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3

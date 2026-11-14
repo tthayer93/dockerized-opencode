@@ -1,4 +1,4 @@
-FROM ghcr.io/anomalyco/opencode:latest
+FROM ghcr.io/anomalyco/opencode:2.3.0
 
 RUN apk add --no-cache \
   ca-certificates bash git nodejs npm python3 py3-pip ripgrep jq wget openssh-client \

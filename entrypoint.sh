@@ -4,6 +4,8 @@ set -e
 PUID="${PUID:-1000}"
 PGID="${PGID:-1000}"
 CONFIG="/home/appuser/.config/opencode/opencode.jsonc"
+SERVE_HOSTNAME="${OPENCODE_SERVE_HOSTNAME:-0.0.0.0}"
+SERVE_PORT="${OPENCODE_SERVE_PORT:-4096}"
 
 addgroup -g "$PGID" appuser >/dev/null 2>&1 || true
 adduser -u "$PUID" -G appuser -h /home/appuser -s /bin/sh -D appuser >/dev/null 2>&1 || true
@@ -44,4 +46,4 @@ fi
 [ ! -f "$CONFIG" ] && cp /opt/opencode/opencode.jsonc.default "$CONFIG"
 
 cd /workspace || exit 1
-exec su -s /bin/sh appuser -c "cd /workspace && exec opencode serve"
+exec su -s /bin/sh appuser -c "cd /workspace && exec opencode serve --hostname ${SERVE_HOSTNAME} --port ${SERVE_PORT}"
