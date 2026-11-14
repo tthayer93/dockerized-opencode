@@ -5,3 +5,6 @@ workspace/
 
 # Environment variables with API keys and passwords
 .env
+
+# Subagent working directory (vendor clones, discovery notes)
+.shared/
