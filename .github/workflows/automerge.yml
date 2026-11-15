@@ -12,6 +12,10 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # Dependabot's Action bumps edit `uses:` lines inside .github/workflows/*, and
+  # GitHub refuses merges that touch workflow files unless the acting token holds
+  # this permission.
+  workflows: write
 
 jobs:
   automerge:
@@ -26,7 +30,9 @@ jobs:
           REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          set -euo pipefail
+          # Not `set -e`: the mutation is called in a retry loop whose exit status
+          # is inspected explicitly.
+          set -uo pipefail
 
           # Resolve the PR that this successful build belongs to.
           pr_json=$(gh api "repos/${REPO}/commits/${HEAD_SHA}/pulls" \
@@ -38,7 +44,45 @@ jobs:
           fi
 
           number=$(echo "$pr_json" | jq -r '.number')
+          pr_id=$(echo "$pr_json" | jq -r '.id')
           echo "Enabling auto-merge (squash) on Dependabot PR #${number}"
-          # --auto lets GitHub do the merge once the build check is green and
-          # the branch is up to date, so we don't fight the ruleset's strict policy.
-          gh pr merge "$number" --repo "$REPO" --auto --squash --delete-branch
+
+          # Call enablePullRequestAutoMerge directly rather than `gh pr merge --auto`:
+          # gh switches to a *direct* merge once every check is green, and direct merges
+          # of PRs that touch workflow files are rejected for a workflow token. Enabling
+          # auto-merge hands the merge to GitHub, which performs it as soon as the
+          # required check is green and the branch is up to date.
+          query='mutation($id: ID!) {
+            enablePullRequestAutoMerge(input: {pullRequestId: $id, mergeMethod: SQUASH}) {
+              pullRequest { number autoMergeRequest { enabledAt } }
+            }
+          }'
+
+          attempt=0
+          while :; do
+            attempt=$((attempt + 1))
+            out=$(gh api graphql -f query="$query" -f id="$pr_id" 2>&1)
+            rc=$?
+            echo "attempt ${attempt} (rc=${rc}): $(echo "$out" | head -c 500)"
+
+            if [ "$rc" -eq 0 ] && ! echo "$out" | grep -q '"errors"'; then
+              echo "Auto-merge enabled on #${number}; GitHub will squash-merge it once green and up to date."
+              exit 0
+            fi
+
+            # Multiple builds can land on one PR head, so "already enabled" is normal.
+            if echo "$out" | grep -qi 'already enabled'; then
+              echo "Auto-merge was already enabled on #${number}."
+              exit 0
+            fi
+
+            if [ "$attempt" -ge 6 ]; then
+              echo "::error::could not enable auto-merge on #${number} after ${attempt} attempts"
+              exit 1
+            fi
+
+            # Usually "Required status check is expected": the workflow_run event can
+            # arrive a beat before the finished check is visible to the ruleset.
+            echo "not ready yet; retrying in 10s"
+            sleep 10
+          done
