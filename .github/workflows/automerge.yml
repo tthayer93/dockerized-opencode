@@ -12,10 +12,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  # Dependabot's Action bumps edit `uses:` lines inside .github/workflows/*, and
-  # GitHub refuses merges that touch workflow files unless the acting token holds
-  # this permission.
-  workflows: write
 
 jobs:
   automerge:
