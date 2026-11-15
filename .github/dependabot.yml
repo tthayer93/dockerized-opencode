@@ -1,7 +1,15 @@
 version: 2
+registries:
+  ghcr:
+    type: docker-registry
+    url: https://ghcr.io
+    username: tthayer93
+    password: ${{ secrets.GHCR_PAT }}
 updates:
   - package-ecosystem: "docker"
     directory: "/"
+    registries:
+      - ghcr
     schedule:
       interval: "weekly"
     commit-message:
